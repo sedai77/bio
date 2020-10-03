@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+
+    <!--- basic page needs
+    ================================================== -->
+    <meta charset="utf-8">
+    <title>Inflation Visualization</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- mobile specific metas
+    ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- CSS
+    ================================================== -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/vendor.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- script
+    ================================================== -->
+    <script src="js/modernizr.js"></script>
+
+    <!-- favicons
+    ================================================== -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+</head>
+
+<body id="top">
+
+    <!-- preloader
+    ================================================== -->
+    <div id="preloader">
+        <div id="loader" class="dots-fade">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+
+    <!-- s-content
+    ================================================== -->
+    <section class="s-content s-content--top-padding s-content--narrow">
+
+        <article class="row entry format-standard">
+
+            <div class="entry__media col-full">
+                <div class="entry__post-thumb">
+                    <img src="images/inflation.jpg"
+                         srcset="images/inflation.jpg 2000w,
+                                 images/inflation2.jpg 1000w"
+                         sizes="(max-width: 2000px) 100vw, 2000px" alt="">
+                </div>
+            </div>
+
+            <div class="entry__header col-full">
+                <h1 class="entry__header-title display-1">
+                    Visualization of inflation over time on common items
+                </h1>
+                <ul class="entry__header-meta">
+                    <li class="date">Dec 15, 2018</li>
+                    <li class="byline">
+                        By
+                        <a href="#0">Shyam Sedai</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-full entry__main">
+
+                <p class="lead drop-cap">Inflation is the one form of taxation that can be imposed without legislation</p>
+                
+                <p class="pull-right"><i>Milton Friedman</i></p>
+
+
+                <h2>Visualization</h2>
+
+                <div id="my_dataviz"></div>
+
+                <script>
+
+                    // set the dimensions and margins of the graph
+                    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+                        width = 460 - margin.left - margin.right,
+                        height = 400 - margin.top - margin.bottom;
+
+                    // append the svg object to the body of the page
+                    var svg = d3.select("#my_dataviz")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
+
+                    //Read the data
+                    d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered.csv", function(data) {
+
+                        // group the data: I want to draw one line per group
+                        var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+                            .key(function(d) { return d.name;})
+                            .entries(data);
+
+                        // Add X axis --> it is a date format
+                        var x = d3.scaleLinear()
+                            .domain(d3.extent(data, function(d) { return d.year; }))
+                            .range([ 0, width ]);
+                        svg.append("g")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(d3.axisBottom(x).ticks(5));
+
+                        // Add Y axis
+                        var y = d3.scaleLinear()
+                            .domain([0, d3.max(data, function(d) { return +d.n; })])
+                            .range([ height, 0 ]);
+                        svg.append("g")
+                            .call(d3.axisLeft(y));
+
+                        // color palette
+                        var res = sumstat.map(function(d){ return d.key }) // list of group names
+                        var color = d3.scaleOrdinal()
+                            .domain(res)
+                            .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
+
+                        // Draw the line
+                        svg.selectAll(".line")
+                            .data(sumstat)
+                            .enter()
+                            .append("path")
+                            .attr("fill", "none")
+                            .attr("stroke", function(d){ return color(d.key) })
+                            .attr("stroke-width", 1.5)
+                            .attr("d", function(d){
+                                return d3.line()
+                                    .x(function(d) { return x(d.year); })
+                                    .y(function(d) { return y(+d.n); })
+                                    (d.values)
+                            })
+
+                    })
+
+                </script>
+            <!--<pre><code>-->
+                <!--Contract with Westinghouse lasted for 20 years from 1888 - 1908.-->
+                <!--Monthly salary: $2,000 * 12 * 20 = $480,000-->
+                <!--Licencing patent with Westinghouse: $200,000-->
+
+                <!--Assuming the Hydroelectric  energy consumption in USA grew at the-->
+                <!--rate of 0.1 quadrillion Btu per 5 years from 1890 to 1935.-->
+
+                <!--Royalty: 3 Quadrillion BTU/ 2544.43 * $2.50 = $2.94*10^12-->
+                <!--2.94 Trillion-->
+
+            <!--</code></pre>-->
+
+                <div class="entry__author">
+                    <img src="../images/profile.jpg" alt="">
+
+                    <div class="entry__author-about">
+                        <h5 class="entry__author-name">
+                            <span>Posted by</span>
+                            <a href="#0">Shyam Sedai</a>
+                        </h5>
+
+                        <div class="entry__author-desc">
+                            <p>
+                                I'm <strong>Shyam Sedai</strong>, Software Engineer by profession, <br><strong>Curious</strong> by Nature & <strong>Addicted</strong> to Technology.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- s-entry__main -->
+
+        </article> <!-- end entry/article -->
+
+
+        <!--<div class="s-content__entry-nav">-->
+            <!--<div class="row s-content__nav">-->
+                <!--<div class="col-six s-content__prev">-->
+                    <!--<a href="#0" rel="prev">-->
+                        <!--<span>Previous Post</span>-->
+                        <!--The Pomodoro Technique Really Works. -->
+                    <!--</a>-->
+                <!--</div>-->
+                <!--<div class="col-six s-content__next">-->
+                    <!--<a href="#0" rel="next">-->
+                        <!--<span>Next Post</span>-->
+                        <!--3 Benefits of Minimalism In Interior Design.-->
+                    <!--</a>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>
+        &lt;!&ndash; end s-content__pagenav &ndash;&gt;-->
+
+
+
+    </section> <!-- end s-content -->
+
+
+    <!-- Java Script
+    ================================================== -->
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
